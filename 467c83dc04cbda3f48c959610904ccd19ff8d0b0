@@ -1,0 +1,25 @@
+packages/chrome-extension/src/popup.html
+  2759937f997d8052 1-13
+packages/chrome-extension/src/popup.tsx
+  2759937f997d8052 1-92
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "467c83dc04cbda3f48c959610904ccd19ff8d0b0",
+  "prompts": {
+    "2759937f997d8052": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "631b836f-9415-4fb5-ab19-f1baaa7ebdec",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 105,
+      "total_deletions": 0,
+      "accepted_lines": 105,
+      "overriden_lines": 0
+    }
+  }
+}
