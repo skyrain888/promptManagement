@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>name</key>
+  <string>PromptStash</string>
+  <key>description</key>
+  <string>Search and save prompts via PromptStash</string>
+  <key>bundleid</key>
+  <string>com.promptstash.alfred</string>
+  <key>readme</key>
+  <string>
+Triggers:
+  pp {query} — Search prompts (Enter to copy)
+  ps {title} — Save clipboard as prompt
+  </string>
+</dict>
+</plist>
