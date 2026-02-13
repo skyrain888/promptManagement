@@ -1,0 +1,31 @@
+packages/electron/src/renderer/index.html
+  2759937f997d8052 1-12
+packages/electron/src/renderer/index.css
+  2759937f997d8052 1
+packages/electron/src/renderer/App.tsx
+  2759937f997d8052 1-114
+packages/electron/src/renderer/main.tsx
+  2759937f997d8052 1-6
+packages/electron/vite.config.ts
+  2759937f997d8052 1-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "2aecf0f5fba8e85a7cf4f9671a9f222859d16fb5",
+  "prompts": {
+    "2759937f997d8052": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "631b836f-9415-4fb5-ab19-f1baaa7ebdec",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 145,
+      "total_deletions": 0,
+      "accepted_lines": 145,
+      "overriden_lines": 0
+    }
+  }
+}
