@@ -1,0 +1,8 @@
+#promptstash-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+#promptstash-dropdown::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
