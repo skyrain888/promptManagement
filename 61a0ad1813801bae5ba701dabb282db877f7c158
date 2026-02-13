@@ -1,0 +1,25 @@
+packages/chrome-extension/src/api-client.ts
+  2759937f997d8052 1-51
+packages/chrome-extension/src/background.ts
+  2759937f997d8052 1-60
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "61a0ad1813801bae5ba701dabb282db877f7c158",
+  "prompts": {
+    "2759937f997d8052": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "631b836f-9415-4fb5-ab19-f1baaa7ebdec",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 111,
+      "total_deletions": 0,
+      "accepted_lines": 111,
+      "overriden_lines": 0
+    }
+  }
+}
