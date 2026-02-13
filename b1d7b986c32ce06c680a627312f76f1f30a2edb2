@@ -1,0 +1,25 @@
+packages/chrome-extension/package.json
+  2759937f997d8052 7-8
+packages/chrome-extension/vite.config.ts
+  2759937f997d8052 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "b1d7b986c32ce06c680a627312f76f1f30a2edb2",
+  "prompts": {
+    "2759937f997d8052": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "631b836f-9415-4fb5-ab19-f1baaa7ebdec",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 23,
+      "total_deletions": 1,
+      "accepted_lines": 23,
+      "overriden_lines": 0
+    }
+  }
+}
