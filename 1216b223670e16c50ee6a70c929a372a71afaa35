@@ -1,0 +1,27 @@
+packages/core/src/index.ts
+  2759937f997d8052 6
+packages/core/src/__tests__/import-export.test.ts
+  2759937f997d8052 1-55
+packages/core/src/import-export.ts
+  2759937f997d8052 1-100
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "1216b223670e16c50ee6a70c929a372a71afaa35",
+  "prompts": {
+    "2759937f997d8052": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "631b836f-9415-4fb5-ab19-f1baaa7ebdec",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 156,
+      "total_deletions": 0,
+      "accepted_lines": 156,
+      "overriden_lines": 0
+    }
+  }
+}
