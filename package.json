@@ -1,0 +1,14 @@
+{
+  "name": "promptstash",
+  "private": true,
+  "scripts": {
+    "dev:electron": "pnpm --filter @promptstash/electron dev",
+    "build:electron": "pnpm --filter @promptstash/electron build",
+    "build:extension": "pnpm --filter @promptstash/chrome-extension build",
+    "test": "pnpm -r test",
+    "test:core": "pnpm --filter @promptstash/core test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
