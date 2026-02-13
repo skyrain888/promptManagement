@@ -1,0 +1,25 @@
+packages/core/src/__tests__/category-repo.test.ts
+  2759937f997d8052 1-53
+packages/core/src/repositories/category-repo.ts
+  2759937f997d8052 1-55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "16d25ac72bcbed71825fae74a282ae0cd88e60bb",
+  "prompts": {
+    "2759937f997d8052": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "631b836f-9415-4fb5-ab19-f1baaa7ebdec",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 108,
+      "total_deletions": 0,
+      "accepted_lines": 108,
+      "overriden_lines": 0
+    }
+  }
+}
