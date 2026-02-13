@@ -1,0 +1,27 @@
+packages/chrome-extension/tsconfig.json
+  2759937f997d8052 1-9
+packages/chrome-extension/manifest.json
+  2759937f997d8052 1-30
+packages/chrome-extension/package.json
+  2759937f997d8052 1-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "08764a5928c67190871b1beb94e41b19c64df30d",
+  "prompts": {
+    "2759937f997d8052": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "631b836f-9415-4fb5-ab19-f1baaa7ebdec",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 53,
+      "total_deletions": 0,
+      "accepted_lines": 53,
+      "overriden_lines": 0
+    }
+  }
+}
