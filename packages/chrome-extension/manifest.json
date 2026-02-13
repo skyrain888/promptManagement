@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "PromptStash",
+  "version": "0.1.0",
+  "description": "Save and insert prompts across AI tools",
+  "permissions": ["contextMenus", "activeTab"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chat.openai.com/*",
+        "https://chatgpt.com/*",
+        "https://claude.ai/*",
+        "https://gemini.google.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}
