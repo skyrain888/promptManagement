@@ -1,0 +1,25 @@
+packages/chrome-extension/src/content.ts
+  2759937f997d8052 1-145
+packages/chrome-extension/src/content.css
+  2759937f997d8052 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "ce4f7de1b412780b62d03fab3f9bd6a1c01e2090",
+  "prompts": {
+    "2759937f997d8052": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "631b836f-9415-4fb5-ab19-f1baaa7ebdec",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 153,
+      "total_deletions": 0,
+      "accepted_lines": 153,
+      "overriden_lines": 0
+    }
+  }
+}
