@@ -1,0 +1,27 @@
+packages/electron/src/main/server.ts
+  2759937f997d8052 1-71
+packages/core/vitest.config.ts
+  2759937f997d8052 1-14
+packages/core/src/__tests__/server.test.ts
+  2759937f997d8052 1-82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "4546deb4bbac01f705c25ba42532722ba8e93b57",
+  "prompts": {
+    "2759937f997d8052": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "631b836f-9415-4fb5-ab19-f1baaa7ebdec",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 168,
+      "total_deletions": 1,
+      "accepted_lines": 167,
+      "overriden_lines": 0
+    }
+  }
+}
