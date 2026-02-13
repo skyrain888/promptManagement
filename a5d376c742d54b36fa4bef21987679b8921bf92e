@@ -1,0 +1,25 @@
+packages/core/src/classifier.ts
+  2759937f997d8052 1-95
+packages/core/src/__tests__/classifier.test.ts
+  2759937f997d8052 1-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "a5d376c742d54b36fa4bef21987679b8921bf92e",
+  "prompts": {
+    "2759937f997d8052": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "631b836f-9415-4fb5-ab19-f1baaa7ebdec",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 130,
+      "total_deletions": 0,
+      "accepted_lines": 130,
+      "overriden_lines": 0
+    }
+  }
+}
