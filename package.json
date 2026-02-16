@@ -6,6 +6,9 @@
     "dev:electron": "pnpm --filter @promptstash/electron dev",
     "build:electron": "pnpm --filter @promptstash/electron build",
     "build:extension": "pnpm --filter @promptstash/chrome-extension build",
+    "build:alfred": "node scripts/build-alfred.mjs",
+    "install:alfred": "node scripts/install-alfred.mjs",
+    "uninstall:alfred": "node scripts/install-alfred.mjs --uninstall",
     "test": "pnpm -r test",
     "test:core": "pnpm --filter @promptstash/core test"
   },

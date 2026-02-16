@@ -71,9 +71,44 @@ pnpm build:electron
 
 # 启动已构建的 Electron 应用
 pnpm --filter @promptstash/electron start
+
+# 构建 Alfred Workflow
+pnpm build:alfred
 ```
 
 主进程通过 esbuild 打包为单个 CJS bundle（`dist/main/index.js`），将 core ESM 代码和主进程代码合并，`better-sqlite3` 和 `electron` 作为 external 保留。渲染器由 Vite 构建到 `dist/renderer/`。
+
+## Alfred Workflow 安装
+
+**前提条件：** 已安装 [Alfred](https://www.alfredapp.com/) 并激活 Powerpack。
+
+```bash
+# 一键编译 + 安装（symlink 到 Alfred workflows 目录）
+pnpm install:alfred
+
+# 卸载
+pnpm uninstall:alfred
+```
+
+安装脚本会将 `packages/alfred-workflow` 以 symlink 方式链接到 Alfred 的 workflows 目录，修改源码后只需 `pnpm build:alfred` 重新编译即可生效，无需重新安装。
+
+**搜索提示词：**
+- 关键词 `pp` 触发，如 `pp python debug`
+- 通过本地 HTTP API 搜索
+- 回车 — 复制到剪贴板
+- `Cmd+回车` — 复制并粘贴到当前应用
+
+**快速保存：**
+- 关键词 `ps` 触发
+- `ps 标题` — 将剪贴板内容保存为提示词
+- 自动分类 + 保存完成后弹出通知
+
+**快速唤起桌面端：**
+- 关键词 `po` 触发
+- 如果 PromptStash 正在运行，激活并聚焦窗口
+- 如果未运行，尝试启动应用
+
+**注意：** 搜索（`pp`）和保存（`ps`）功能需先启动 PromptStash 桌面应用（HTTP API 运行在 `127.0.0.1:9877`）。唤起（`po`）可在未运行时启动应用。
 
 ## API 端点
 
