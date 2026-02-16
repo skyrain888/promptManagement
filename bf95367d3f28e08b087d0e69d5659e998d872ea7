@@ -1,0 +1,29 @@
+packages/core/src/prompt-generator.ts
+  8798477c6c238067 1-108
+packages/core/src/models.ts
+  8798477c6c238067 64-90
+packages/core/src/__tests__/prompt-generator.test.ts
+  8798477c6c238067 1-134
+packages/core/src/index.ts
+  8798477c6c238067 8,10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "bf95367d3f28e08b087d0e69d5659e998d872ea7",
+  "prompts": {
+    "8798477c6c238067": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "049d13e4-64da-4e76-8ca1-85a1f071d99a",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 1397,
+      "total_deletions": 54,
+      "accepted_lines": 1344,
+      "overriden_lines": 0
+    }
+  }
+}
