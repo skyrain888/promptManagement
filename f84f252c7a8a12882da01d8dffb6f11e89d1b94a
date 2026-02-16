@@ -1,0 +1,23 @@
+packages/core/src/__tests__/server.test.ts
+  8798477c6c238067 1,139-227
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "f84f252c7a8a12882da01d8dffb6f11e89d1b94a",
+  "prompts": {
+    "8798477c6c238067": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "049d13e4-64da-4e76-8ca1-85a1f071d99a",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 196,
+      "total_deletions": 2,
+      "accepted_lines": 196,
+      "overriden_lines": 0
+    }
+  }
+}
