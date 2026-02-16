@@ -1,0 +1,23 @@
+packages/electron/src/renderer/App.tsx
+  fe9a1fd84d7bd178 681-690,768,786,894-895,899-908,932
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "f598de6238b23d69ccc6218632966b5c46c8a9db",
+  "prompts": {
+    "fe9a1fd84d7bd178": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "df77b0ca-aae1-4618-9486-17796fc98cfa",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 28,
+      "total_deletions": 8,
+      "accepted_lines": 25,
+      "overriden_lines": 0
+    }
+  }
+}
