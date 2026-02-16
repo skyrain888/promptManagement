@@ -1,0 +1,27 @@
+packages/core/src/__tests__/prompt-organizer.test.ts
+  fe9a1fd84d7bd178 1-206
+packages/core/src/prompt-organizer.ts
+  fe9a1fd84d7bd178 1-131
+packages/core/src/index.ts
+  fe9a1fd84d7bd178 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "a1ba723d407b7c394590e3cfe28579768c966f1b",
+  "prompts": {
+    "fe9a1fd84d7bd178": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "df77b0ca-aae1-4618-9486-17796fc98cfa",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 338,
+      "total_deletions": 0,
+      "accepted_lines": 338,
+      "overriden_lines": 0
+    }
+  }
+}
