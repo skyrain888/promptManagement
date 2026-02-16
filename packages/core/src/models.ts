@@ -61,3 +61,30 @@ export interface LLMClassifyResult {
   isNewCategory: boolean;
   tags: string[];
 }
+
+export interface GenerateSession {
+  id: string;
+  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
+  generatedPrompt: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface GenerateStartInput {
+  requirement: string;
+}
+
+export interface GenerateRefineInput {
+  sessionId: string;
+  feedback: string;
+}
+
+export interface GenerateResult {
+  sessionId: string;
+  prompt: string;
+  title: string;
+}
+
+export interface GenerateSaveInput {
+  sessionId: string;
+}
