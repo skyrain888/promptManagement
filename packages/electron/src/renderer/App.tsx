@@ -106,6 +106,14 @@ function SparkleIcon() {
   );
 }
 
+function OrganizeIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 4h12M4 8h8M6 12h4" />
+    </svg>
+  );
+}
+
 const PRESET_ICONS = [
   '💻', '✍️', '🌐', '📊', '💡', '📁',
   '🎨', '🔧', '📚', '🎯', '🧪', '🤖',
@@ -640,6 +648,318 @@ function GeneratePanel({ onSaveToForm, onClose }: {
   );
 }
 
+interface OrganizeSuggestionItem {
+  promptId: string;
+  originalTitle: string;
+  newTitle: string | null;
+  originalCategory: string;
+  newCategory: string | null;
+  isNewCategory: boolean;
+  originalTags: string[];
+  newTags: string[] | null;
+  similarTo: string[];
+  reason: string;
+}
+
+interface OrganizeScanResponse {
+  suggestions: OrganizeSuggestionItem[];
+  totalScanned: number;
+  batchesCompleted: number;
+  batchesFailed: number;
+}
+
+function OrganizePanel({ onComplete, onClose }: {
+  onComplete: () => void;
+  onClose: () => void;
+}) {
+  const [phase, setPhase] = useState<'idle' | 'scanning' | 'results' | 'applying' | 'done'>('idle');
+  const [scanResult, setScanResult] = useState<OrganizeScanResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState<'title' | 'category' | 'tags' | 'duplicates'>('title');
+  const [applyResult, setApplyResult] = useState<{ applied: number; failed: number } | null>(null);
+
+  const handleScan = async () => {
+    setPhase('scanning');
+    setError(null);
+    try {
+      const r = await fetch(`${API}/api/organize/scan`, { method: 'POST' });
+      if (!r.ok) {
+        const err = await r.json();
+        throw new Error(err.error || 'Scan failed');
+      }
+      const data: OrganizeScanResponse = await r.json();
+      setScanResult(data);
+      const ids = new Set<string>();
+      for (const s of data.suggestions) {
+        if (s.newTitle || s.newCategory || s.newTags) {
+          ids.add(s.promptId);
+        }
+      }
+      setSelected(ids);
+      setPhase('results');
+    } catch (err: any) {
+      setError(err.message || '扫描失败');
+      setPhase('idle');
+    }
+  };
+
+  const handleApply = async () => {
+    if (!scanResult) return;
+    setPhase('applying');
+    setError(null);
+    const changes = scanResult.suggestions
+      .filter(s => selected.has(s.promptId))
+      .map(s => {
+        const change: any = { promptId: s.promptId };
+        if (s.newTitle) change.newTitle = s.newTitle;
+        if (s.newCategory) {
+          if (s.isNewCategory) {
+            change.newCategoryName = s.newCategory;
+            change.isNewCategory = true;
+          } else {
+            change.newCategoryName = s.newCategory;
+          }
+        }
+        if (s.newTags) change.newTags = s.newTags;
+        return change;
+      });
+    try {
+      const r = await fetch(`${API}/api/organize/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ changes }),
+      });
+      if (!r.ok) {
+        const err = await r.json();
+        throw new Error(err.error || 'Apply failed');
+      }
+      const result = await r.json();
+      setApplyResult(result);
+      setPhase('done');
+    } catch (err: any) {
+      setError(err.message || '应用失败');
+      setPhase('results');
+    }
+  };
+
+  const toggleSelect = (promptId: string) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(promptId)) next.delete(promptId);
+      else next.add(promptId);
+      return next;
+    });
+  };
+
+  const titleSuggestions = scanResult?.suggestions.filter(s => s.newTitle) || [];
+  const categorySuggestions = scanResult?.suggestions.filter(s => s.newCategory) || [];
+  const tagsSuggestions = scanResult?.suggestions.filter(s => s.newTags) || [];
+  const duplicates = scanResult?.suggestions.filter(s => s.similarTo.length > 0) || [];
+
+  const tabCounts = {
+    title: titleSuggestions.length,
+    category: categorySuggestions.length,
+    tags: tagsSuggestions.length,
+    duplicates: duplicates.length,
+  };
+
+  const currentList = activeTab === 'title' ? titleSuggestions
+    : activeTab === 'category' ? categorySuggestions
+    : activeTab === 'tags' ? tagsSuggestions
+    : duplicates;
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-gray-900">智能整理</h2>
+        <button onClick={onClose} className="text-xs px-2.5 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+          关闭
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-3">
+        {phase === 'idle' && (
+          <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
+            <div className="text-3xl">🧹</div>
+            <div>
+              <p className="text-sm text-gray-700 font-medium">扫描所有提示词</p>
+              <p className="text-xs text-gray-400 mt-1">智能优化标题、分类和标签，检测重复内容</p>
+            </div>
+          </div>
+        )}
+
+        {phase === 'scanning' && (
+          <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
+            <div className="w-8 h-8 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+            <div>
+              <p className="text-sm text-gray-700 font-medium">正在分析...</p>
+              <p className="text-xs text-gray-400 mt-1">AI 正在审查您的提示词库</p>
+            </div>
+          </div>
+        )}
+
+        {phase === 'results' && scanResult && (
+          <>
+            <div className="text-xs text-gray-500">
+              扫描了 {scanResult.totalScanned} 条提示词，发现 {selected.size} 条优化建议
+              {scanResult.batchesFailed > 0 && (
+                <span className="text-amber-500">（{scanResult.batchesFailed} 批次分析失败）</span>
+              )}
+            </div>
+
+            <div className="flex gap-1 border-b border-gray-100 -mx-5 px-5">
+              {([
+                ['title', '标题', tabCounts.title],
+                ['category', '分类', tabCounts.category],
+                ['tags', '标签', tabCounts.tags],
+                ['duplicates', '重复', tabCounts.duplicates],
+              ] as const).map(([key, label, count]) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveTab(key)}
+                  className={`text-xs px-2.5 py-1.5 border-b-2 transition-colors ${
+                    activeTab === key
+                      ? 'border-indigo-500 text-indigo-600'
+                      : 'border-transparent text-gray-400 hover:text-gray-600'
+                  }`}
+                >
+                  {label} ({count})
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              {currentList.length === 0 && (
+                <p className="text-xs text-gray-400 text-center py-4">此分类无优化建议</p>
+              )}
+              {currentList.map((s) => (
+                <label
+                  key={`${activeTab}-${s.promptId}`}
+                  className="flex items-start gap-2 p-2.5 rounded-lg border border-gray-100 hover:border-gray-200 cursor-pointer transition-colors"
+                >
+                  {activeTab !== 'duplicates' && (
+                    <input
+                      type="checkbox"
+                      checked={selected.has(s.promptId)}
+                      onChange={() => toggleSelect(s.promptId)}
+                      className="mt-0.5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    {activeTab === 'title' && (
+                      <>
+                        <p className="text-xs text-gray-400 line-through truncate">{s.originalTitle}</p>
+                        <p className="text-xs text-gray-700 font-medium truncate">{s.newTitle}</p>
+                      </>
+                    )}
+                    {activeTab === 'category' && (
+                      <>
+                        <p className="text-xs truncate">
+                          <span className="text-gray-400">{s.originalTitle}</span>
+                        </p>
+                        <p className="text-xs">
+                          <span className="text-gray-400">{s.originalCategory}</span>
+                          <span className="text-gray-300 mx-1">→</span>
+                          <span className="text-indigo-600 font-medium">{s.newCategory}</span>
+                          {s.isNewCategory && <span className="text-[10px] text-amber-500 ml-1">新分类</span>}
+                        </p>
+                      </>
+                    )}
+                    {activeTab === 'tags' && (
+                      <>
+                        <p className="text-xs text-gray-400 truncate">{s.originalTitle}</p>
+                        <div className="flex flex-wrap gap-1 mt-0.5">
+                          {s.originalTags.map(t => (
+                            <span key={`old-${t}`} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-400 line-through">{t}</span>
+                          ))}
+                          <span className="text-gray-300 text-[10px]">→</span>
+                          {(s.newTags || []).map(t => (
+                            <span key={`new-${t}`} className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600">{t}</span>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                    {activeTab === 'duplicates' && (
+                      <>
+                        <p className="text-xs text-gray-700 font-medium truncate">{s.originalTitle}</p>
+                        <p className="text-[10px] text-amber-600 mt-0.5">
+                          与 {s.similarTo.length} 条提示词内容相似
+                        </p>
+                      </>
+                    )}
+                    <p className="text-[10px] text-gray-400 mt-0.5">{s.reason}</p>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </>
+        )}
+
+        {phase === 'applying' && (
+          <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
+            <div className="w-8 h-8 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+            <p className="text-sm text-gray-700">正在应用修改...</p>
+          </div>
+        )}
+
+        {phase === 'done' && applyResult && (
+          <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
+            <div className="text-3xl">✅</div>
+            <div>
+              <p className="text-sm text-gray-700 font-medium">整理完成</p>
+              <p className="text-xs text-gray-500 mt-1">
+                成功更新 {applyResult.applied} 条提示词
+                {applyResult.failed > 0 && `，${applyResult.failed} 条失败`}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="text-xs px-3 py-2 rounded-lg bg-red-50 text-red-700">{error}</div>
+        )}
+      </div>
+
+      <div className="px-5 py-4 border-t border-gray-100 flex gap-2">
+        {phase === 'idle' && (
+          <button
+            onClick={handleScan}
+            className="flex-1 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            开始扫描
+          </button>
+        )}
+        {phase === 'results' && (
+          <>
+            <button
+              onClick={() => { setPhase('idle'); setScanResult(null); setError(null); }}
+              className="flex-1 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              重新扫描
+            </button>
+            <button
+              onClick={handleApply}
+              disabled={selected.size === 0}
+              className="flex-1 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              应用修改 ({selected.size})
+            </button>
+          </>
+        )}
+        {phase === 'done' && (
+          <button
+            onClick={() => { onComplete(); onClose(); }}
+            className="flex-1 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            完成
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function App() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -647,7 +967,7 @@ export function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const [copied, setCopied] = useState(false);
-  const [mode, setMode] = useState<'view' | 'create' | 'edit' | 'settings' | 'generate'>('view');
+  const [mode, setMode] = useState<'view' | 'create' | 'edit' | 'settings' | 'generate' | 'organize'>('view');
   const [form, setForm] = useState<PromptForm>(emptyForm);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [suggestedCategory, setSuggestedCategory] = useState<string | null>(null);
@@ -1111,6 +1431,15 @@ export function App() {
             <GearIcon />
             设置
           </button>
+          <button
+            onClick={() => { setMode('organize'); setSelectedPrompt(null); }}
+            className={`flex items-center gap-2 text-[12px] px-3 py-1.5 rounded-lg text-left transition-colors ${
+              mode === 'organize' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100/80'
+            }`}
+          >
+            <OrganizeIcon />
+            整理
+          </button>
         </div>
       </aside>
 
@@ -1330,6 +1659,18 @@ export function App() {
               setMode('create');
               setSelectedPrompt(null);
               setSuggestedCategory(null);
+              fetch(`${API}/api/categories`).then((r) => r.json()).then(setCategories);
+            }}
+            onClose={() => setMode('view')}
+          />
+        </aside>
+      )}
+
+      {mode === 'organize' && (
+        <aside className="w-[340px] bg-white border-l border-gray-200/60 flex flex-col">
+          <OrganizePanel
+            onComplete={() => {
+              refreshPrompts();
               fetch(`${API}/api/categories`).then((r) => r.json()).then(setCategories);
             }}
             onClose={() => setMode('view')}
