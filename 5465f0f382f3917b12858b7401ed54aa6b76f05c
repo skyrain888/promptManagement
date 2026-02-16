@@ -1,0 +1,37 @@
+packages/alfred-workflow/src/save.ts
+  cd2073a4d21d7530 1-2
+packages/alfred-workflow/src/open.ts
+  cd2073a4d21d7530 1-41
+scripts/install-alfred.mjs
+  cd2073a4d21d7530 1-109
+packages/alfred-workflow/info.plist
+  cd2073a4d21d7530 5-7,11-14,17-389
+scripts/build-alfred.mjs
+  cd2073a4d21d7530 1-23
+package.json
+  cd2073a4d21d7530 9-11
+packages/alfred-workflow/src/search.ts
+  cd2073a4d21d7530 1-2
+README.md
+  cd2073a4d21d7530 74-76,81-111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "5465f0f382f3917b12858b7401ed54aa6b76f05c",
+  "prompts": {
+    "cd2073a4d21d7530": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "59e95943-4e69-44ef-9754-1c0c4da87019",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 633,
+      "total_deletions": 45,
+      "accepted_lines": 595,
+      "overriden_lines": 0
+    }
+  }
+}
