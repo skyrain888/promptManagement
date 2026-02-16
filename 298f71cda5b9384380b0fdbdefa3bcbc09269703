@@ -1,0 +1,23 @@
+docs/plans/2026-02-16-organize-feature-implementation.md
+  fe9a1fd84d7bd178 1-1231
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "298f71cda5b9384380b0fdbdefa3bcbc09269703",
+  "prompts": {
+    "fe9a1fd84d7bd178": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "df77b0ca-aae1-4618-9486-17796fc98cfa",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 1231,
+      "total_deletions": 0,
+      "accepted_lines": 1231,
+      "overriden_lines": 0
+    }
+  }
+}
