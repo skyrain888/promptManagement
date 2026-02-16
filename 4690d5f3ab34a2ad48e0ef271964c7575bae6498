@@ -1,0 +1,29 @@
+scripts/dist-alfred.mjs
+  b6e59dcb2ccc2cf1 1-54
+scripts/dist-extension.mjs
+  b6e59dcb2ccc2cf1 1-47
+README.md
+  b6e59dcb2ccc2cf1 142,144,159-176,178-179,181
+package.json
+  b6e59dcb2ccc2cf1 13-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "4690d5f3ab34a2ad48e0ef271964c7575bae6498",
+  "prompts": {
+    "b6e59dcb2ccc2cf1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "41065867-ad38-451b-ba10-6358921e7686",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 128,
+      "total_deletions": 27,
+      "accepted_lines": 128,
+      "overriden_lines": 0
+    }
+  }
+}
