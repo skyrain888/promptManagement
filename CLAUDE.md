@@ -63,6 +63,8 @@ pnpm --filter @promptstash/core test -- prompt-repo.test.ts  # Single test file
 | POST | `/api/generate/refine` | Refine with feedback |
 | POST | `/api/generate/save` | Save generated prompt |
 | DELETE | `/api/generate/:sessionId` | Discard session |
+| POST | `/api/organize/scan` | Scan all prompts for optimization suggestions |
+| POST | `/api/organize/apply` | Apply selected organize suggestions |
 
 ## Testing
 
