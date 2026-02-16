@@ -6,8 +6,3 @@
   background: #ccc;
   border-radius: 3px;
 }
-
-.promptstash-item[data-selected="true"],
-.promptstash-item:hover {
-  background: #e8f0fe !important;
-}

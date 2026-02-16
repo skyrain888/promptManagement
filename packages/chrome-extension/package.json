@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite build --watch",
-    "build": "vite build",
-    "postbuild": "cp manifest.json dist/ && mkdir -p dist/icons"
+    "build": "vite build"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.287",

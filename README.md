@@ -50,15 +50,30 @@ pnpm install
 # 运行核心包测试
 pnpm test:core
 
+# 仅启动 API 服务器（不依赖 Electron，用于调试 API）
+pnpm dev:server
+
+# 启动完整 Electron 开发模式（主进程 + 渲染器 + HTTP 服务器）
+pnpm dev:electron
+
 # 构建核心包
 pnpm --filter @promptstash/core build
 
 # 构建 Chrome 扩展
 pnpm build:extension
-
-# 启动 Electron 开发模式
-pnpm dev:electron
 ```
+
+## 构建
+
+```bash
+# 构建 Electron 应用（core tsc → esbuild 主进程 → Vite 渲染器）
+pnpm build:electron
+
+# 启动已构建的 Electron 应用
+pnpm --filter @promptstash/electron start
+```
+
+主进程通过 esbuild 打包为单个 CJS bundle（`dist/main/index.js`），将 core ESM 代码和主进程代码合并，`better-sqlite3` 和 `electron` 作为 external 保留。渲染器由 Vite 构建到 `dist/renderer/`。
 
 ## API 端点
 

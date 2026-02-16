@@ -76,7 +76,64 @@ describe('HTTP API Server', () => {
     });
     expect(res.statusCode).toBe(200);
     const body = res.json();
-    expect(body.category).toBe('编程');
-    expect(body.tags).toContain('python');
+    expect(body).toHaveProperty('title');
+    expect(body).toHaveProperty('category');
+    expect(body).toHaveProperty('categoryId');
+    expect(body).toHaveProperty('tags');
+    expect(Array.isArray(body.tags)).toBe(true);
+  });
+
+  it('PUT /api/prompts/:id should update a prompt', async () => {
+    // First create a prompt
+    const createRes = await server.inject({
+      method: 'POST',
+      url: '/api/prompts',
+      payload: { title: 'To Update', content: 'Old content', categoryId, tags: ['old'] },
+    });
+    const created = createRes.json();
+
+    const res = await server.inject({
+      method: 'PUT',
+      url: `/api/prompts/${created.id}`,
+      payload: { title: 'Updated Title', tags: ['new'] },
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.title).toBe('Updated Title');
+    expect(body.tags).toEqual(['new']);
+    expect(body.content).toBe('Old content');
+  });
+
+  it('PUT /api/prompts/:id should return 404 for nonexistent', async () => {
+    const res = await server.inject({
+      method: 'PUT',
+      url: '/api/prompts/nonexistent',
+      payload: { title: 'X' },
+    });
+    expect(res.statusCode).toBe(404);
+  });
+
+  it('GET /api/export should return all data', async () => {
+    const res = await server.inject({ method: 'GET', url: '/api/export' });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.version).toBe(1);
+    expect(body.categories).toBeDefined();
+    expect(body.prompts).toBeDefined();
+    expect(body.tags).toBeDefined();
+  });
+
+  it('POST /api/import should import data', async () => {
+    // Export first
+    const exportRes = await server.inject({ method: 'GET', url: '/api/export' });
+    const data = exportRes.json();
+
+    const res = await server.inject({
+      method: 'POST',
+      url: '/api/import',
+      payload: data,
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().ok).toBe(true);
   });
 });

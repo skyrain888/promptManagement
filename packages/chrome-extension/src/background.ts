@@ -17,29 +17,29 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     try {
       const classification = await api.classify(text);
       const categories = await api.getCategories();
-      const matchedCat = categories.find((c: any) => c.name === classification.category);
-
-      if (!matchedCat) {
-        console.error('No matching category found');
-        return;
-      }
 
       // Send data to popup for user confirmation
       chrome.storage.local.set({
         pendingSave: {
           content: text,
-          suggestedTitle: classification.suggestedTitle,
-          categoryId: matchedCat.id,
-          categoryName: matchedCat.name,
-          tags: classification.tags,
+          suggestedTitle: classification.title,
+          categoryId: classification.categoryId,
+          categoryName: classification.category,
+          tags: classification.tags || [],
           source,
           categories,
         },
       });
 
-      // Open popup for confirmation
-      if (tab?.id) {
-        chrome.action.openPopup();
+      // Notify user to open popup
+      chrome.action.setBadgeText({ text: '1' });
+      chrome.action.setBadgeBackgroundColor({ color: '#4F46E5' });
+
+      // Try opening popup automatically (may fail depending on context)
+      try {
+        await chrome.action.openPopup();
+      } catch {
+        // openPopup not available in this context — badge will guide the user
       }
     } catch (err) {
       console.error('PromptStash save error:', err);

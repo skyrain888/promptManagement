@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { Database } from '../db.js';
-import type { Prompt, PromptCreateInput, PromptSearchParams } from '../models.js';
+import type { Prompt, PromptCreateInput, PromptUpdateInput, PromptSearchParams } from '../models.js';
 
 interface PromptRow {
   id: string;
@@ -64,6 +64,50 @@ export class PromptRepo {
     };
   }
 
+  update(id: string, input: PromptUpdateInput): Prompt | undefined {
+    const existing = this.getById(id);
+    if (!existing) return undefined;
+
+    const now = new Date().toISOString();
+
+    const tx = this.db.raw.transaction(() => {
+      const sets: string[] = [];
+      const args: unknown[] = [];
+
+      if (input.title !== undefined) { sets.push('title = ?'); args.push(input.title); }
+      if (input.content !== undefined) { sets.push('content = ?'); args.push(input.content); }
+      if (input.categoryId !== undefined) { sets.push('category_id = ?'); args.push(input.categoryId); }
+      if (input.source !== undefined) { sets.push('source = ?'); args.push(input.source); }
+
+      sets.push('updated_at = ?');
+      args.push(now);
+      args.push(id);
+
+      this.db.raw.prepare(`UPDATE prompts SET ${sets.join(', ')} WHERE id = ?`).run(...args);
+
+      if (input.tags !== undefined) {
+        this.db.raw.prepare('DELETE FROM prompt_tags WHERE prompt_id = ?').run(id);
+
+        const insertTag = this.db.raw.prepare('INSERT OR IGNORE INTO tags (id, name) VALUES (?, ?)');
+        const findTag = this.db.raw.prepare('SELECT id FROM tags WHERE name = ?');
+        const linkTag = this.db.raw.prepare('INSERT INTO prompt_tags (prompt_id, tag_id) VALUES (?, ?)');
+
+        for (const tagName of input.tags) {
+          let tagRow = findTag.get(tagName) as { id: string } | undefined;
+          if (!tagRow) {
+            const tagId = uuidv4();
+            insertTag.run(tagId, tagName);
+            tagRow = { id: tagId };
+          }
+          linkTag.run(id, tagRow.id);
+        }
+      }
+    });
+    tx();
+
+    return this.getById(id);
+  }
+
   getById(id: string): Prompt | undefined {
     const row = this.db.raw
       .prepare('SELECT * FROM prompts WHERE id = ?')
@@ -72,15 +116,20 @@ export class PromptRepo {
     return this.toPrompt(row);
   }
 
+  static readonly FREQUENT_USE_THRESHOLD = 5;
+
   search(params: PromptSearchParams): Prompt[] {
     let sql: string;
     const args: unknown[] = [];
 
     if (params.q) {
-      sql = `SELECT p.* FROM prompts p
-             INNER JOIN prompts_fts fts ON p.rowid = fts.rowid
-             WHERE prompts_fts MATCH ?`;
-      args.push(params.q);
+      const pattern = `%${params.q}%`;
+      // Fuzzy search across title, content, and tags
+      sql = `SELECT DISTINCT p.* FROM prompts p
+             LEFT JOIN prompt_tags pt ON p.id = pt.prompt_id
+             LEFT JOIN tags t ON pt.tag_id = t.id
+             WHERE (p.title LIKE ? OR p.content LIKE ? OR t.name LIKE ?)`;
+      args.push(pattern, pattern, pattern);
     } else {
       sql = 'SELECT p.* FROM prompts p WHERE 1=1';
     }
@@ -97,6 +146,11 @@ export class PromptRepo {
         WHERE t.name = ?
       )`;
       args.push(params.tag);
+    }
+
+    if (params.favorite) {
+      sql += ` AND (p.is_favorite = 1 OR p.usage_count >= ?)`;
+      args.push(PromptRepo.FREQUENT_USE_THRESHOLD);
     }
 
     sql += ' ORDER BY p.usage_count DESC, p.updated_at DESC';

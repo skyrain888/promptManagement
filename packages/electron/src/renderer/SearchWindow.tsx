@@ -27,9 +27,10 @@ export function SearchWindow() {
     fetch(`${API}/api/prompts/search?${params}`)
       .then((r) => r.json())
       .then((data) => {
-        setResults(data);
+        setResults(Array.isArray(data) ? data : []);
         setSelectedIdx(0);
-      });
+      })
+      .catch(() => setResults([]));
   }, [query]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

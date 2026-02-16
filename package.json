@@ -2,6 +2,7 @@
   "name": "promptstash",
   "private": true,
   "scripts": {
+    "dev:server": "node scripts/run-dev-server.mjs",
     "dev:electron": "pnpm --filter @promptstash/electron dev",
     "build:electron": "pnpm --filter @promptstash/electron build",
     "build:extension": "pnpm --filter @promptstash/chrome-extension build",

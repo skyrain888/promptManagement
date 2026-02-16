@@ -32,10 +32,32 @@ export interface PromptCreateInput {
   source?: string;
 }
 
+export interface PromptUpdateInput {
+  title?: string;
+  content?: string;
+  categoryId?: string;
+  tags?: string[];
+  source?: string;
+}
+
 export interface PromptSearchParams {
   q?: string;
   categoryId?: string;
   tag?: string;
+  favorite?: boolean;
   limit?: number;
   offset?: number;
+}
+
+export interface LLMConfig {
+  baseUrl: string;
+  apiKey: string;
+  model: string;
+}
+
+export interface LLMClassifyResult {
+  title: string;
+  category: string;
+  isNewCategory: boolean;
+  tags: string[];
 }

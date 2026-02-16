@@ -52,6 +52,11 @@ export class Database {
         FOREIGN KEY (prompt_id) REFERENCES prompts(id) ON DELETE CASCADE,
         FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
       );
+
+      CREATE TABLE IF NOT EXISTS settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
     `);
 
     // FTS5 virtual table for full-text search

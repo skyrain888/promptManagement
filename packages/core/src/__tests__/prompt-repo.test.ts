@@ -103,4 +103,96 @@ describe('PromptRepo', () => {
     prompts.delete(p.id);
     expect(prompts.getById(p.id)).toBeUndefined();
   });
+
+  describe('update', () => {
+    it('should update title and content', () => {
+      const p = prompts.create({ title: 'Original', content: 'Original content', categoryId });
+      const updated = prompts.update(p.id, { title: 'Updated', content: 'New content' });
+      expect(updated).toBeTruthy();
+      expect(updated!.title).toBe('Updated');
+      expect(updated!.content).toBe('New content');
+      expect(updated!.categoryId).toBe(categoryId);
+    });
+
+    it('should update tags', () => {
+      const p = prompts.create({ title: 'Test', content: 'Content', categoryId, tags: ['old'] });
+      const updated = prompts.update(p.id, { tags: ['new1', 'new2'] });
+      expect(updated!.tags).toHaveLength(2);
+      expect(updated!.tags).toContain('new1');
+      expect(updated!.tags).toContain('new2');
+    });
+
+    it('should update category', () => {
+      const cat2 = categories.create({ name: '写作', sortOrder: 1 });
+      const p = prompts.create({ title: 'Test', content: 'Content', categoryId });
+      const updated = prompts.update(p.id, { categoryId: cat2.id });
+      expect(updated!.categoryId).toBe(cat2.id);
+    });
+
+    it('should return undefined for nonexistent id', () => {
+      const result = prompts.update('nonexistent', { title: 'X' });
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('favorite search', () => {
+    it('should return manually favorited prompts', () => {
+      const p1 = prompts.create({ title: 'Fav', content: 'Content', categoryId });
+      prompts.create({ title: 'Normal', content: 'Content', categoryId });
+      prompts.toggleFavorite(p1.id);
+
+      const results = prompts.search({ favorite: true });
+      expect(results).toHaveLength(1);
+      expect(results[0].id).toBe(p1.id);
+    });
+
+    it('should return frequently used prompts (usage >= threshold)', () => {
+      const p1 = prompts.create({ title: 'Popular', content: 'Content', categoryId });
+      prompts.create({ title: 'Rare', content: 'Content', categoryId });
+
+      for (let i = 0; i < PromptRepo.FREQUENT_USE_THRESHOLD; i++) {
+        prompts.incrementUsage(p1.id);
+      }
+
+      const results = prompts.search({ favorite: true });
+      expect(results).toHaveLength(1);
+      expect(results[0].id).toBe(p1.id);
+    });
+
+    it('should return both favorited and frequently used prompts', () => {
+      const p1 = prompts.create({ title: 'Manual fav', content: 'Content', categoryId });
+      const p2 = prompts.create({ title: 'Auto fav', content: 'Content', categoryId });
+      prompts.create({ title: 'Neither', content: 'Content', categoryId });
+
+      prompts.toggleFavorite(p1.id);
+      for (let i = 0; i < PromptRepo.FREQUENT_USE_THRESHOLD; i++) {
+        prompts.incrementUsage(p2.id);
+      }
+
+      const results = prompts.search({ favorite: true });
+      expect(results).toHaveLength(2);
+      const ids = results.map((r) => r.id);
+      expect(ids).toContain(p1.id);
+      expect(ids).toContain(p2.id);
+    });
+
+    it('should not return favorites when favorite param is not set', () => {
+      const p1 = prompts.create({ title: 'Fav', content: 'Content', categoryId });
+      const p2 = prompts.create({ title: 'Normal', content: 'Content', categoryId });
+      prompts.toggleFavorite(p1.id);
+
+      const results = prompts.search({});
+      expect(results).toHaveLength(2);
+    });
+
+    it('should combine favorite filter with text search', () => {
+      const p1 = prompts.create({ title: 'Python fav', content: 'Python code', categoryId });
+      const p2 = prompts.create({ title: 'Python normal', content: 'Python code', categoryId });
+      prompts.toggleFavorite(p1.id);
+
+      const results = prompts.search({ q: 'Python', favorite: true });
+      expect(results).toHaveLength(1);
+      expect(results[0].id).toBe(p1.id);
+    });
+  });
 });

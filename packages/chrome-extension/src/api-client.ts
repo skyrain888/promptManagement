@@ -1,9 +1,11 @@
 const BASE_URL = 'http://127.0.0.1:9877';
 
 export interface ClassifyResponse {
+  title: string;
   category: string;
+  categoryId: string;
   tags: string[];
-  suggestedTitle: string;
+  isNewCategory: boolean;
 }
 
 export const api = {

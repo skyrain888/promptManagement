@@ -13,6 +13,9 @@ interface PendingSave {
 async function init() {
   const root = document.getElementById('root')!;
 
+  // Clear badge when popup opens
+  chrome.action.setBadgeText({ text: '' });
+
   const data = await chrome.storage.local.get('pendingSave');
   const pending = data.pendingSave as PendingSave | undefined;
 
@@ -20,29 +23,29 @@ async function init() {
     root.innerHTML = `
       <div style="padding:20px;text-align:center;">
         <h3 style="margin:0 0 8px;">PromptStash</h3>
-        <p style="color:#666;font-size:13px;">Select text on any AI page, right-click, and choose "Save to PromptStash"</p>
+        <p style="color:#666;font-size:13px;">在任意 AI 页面选中文本，右键选择「Save to PromptStash」即可保存</p>
       </div>`;
     return;
   }
 
   root.innerHTML = `
     <div style="padding:16px;">
-      <h3 style="margin:0 0 12px;">Save Prompt</h3>
-      <label style="display:block;margin-bottom:8px;font-size:13px;color:#555;">Title</label>
-      <input id="title" type="text" value="${escapeAttr(pending.suggestedTitle)}"
+      <h3 style="margin:0 0 12px;">保存提示词</h3>
+      <label style="display:block;margin-bottom:8px;font-size:13px;color:#555;">标题</label>
+      <input id="title" type="text" value="${escapeAttr(pending.suggestedTitle || '')}"
         style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;margin-bottom:12px;" />
 
-      <label style="display:block;margin-bottom:8px;font-size:13px;color:#555;">Category</label>
+      <label style="display:block;margin-bottom:8px;font-size:13px;color:#555;">分类</label>
       <select id="category" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;margin-bottom:12px;">
         ${pending.categories.map((c) =>
           `<option value="${c.id}" ${c.id === pending.categoryId ? 'selected' : ''}>${c.name}</option>`
         ).join('')}
       </select>
 
-      <label style="display:block;margin-bottom:8px;font-size:13px;color:#555;">Tags</label>
-      <input id="tags" type="text" value="${pending.tags.join(', ')}"
+      <label style="display:block;margin-bottom:8px;font-size:13px;color:#555;">标签</label>
+      <input id="tags" type="text" value="${(pending.tags || []).join(', ')}"
         style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;margin-bottom:12px;"
-        placeholder="comma separated" />
+        placeholder="逗号分隔" />
 
       <div style="color:#999;font-size:12px;margin-bottom:12px;max-height:60px;overflow-y:auto;">
         ${escapeHtml(pending.content.slice(0, 200))}${pending.content.length > 200 ? '...' : ''}
@@ -50,7 +53,7 @@ async function init() {
 
       <button id="save-btn"
         style="width:100%;padding:10px;background:#4F46E5;color:white;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
-        Save
+        保存
       </button>
       <div id="status" style="margin-top:8px;text-align:center;font-size:13px;"></div>
     </div>`;
@@ -71,12 +74,12 @@ async function init() {
         source: pending.source,
       });
       statusEl.style.color = '#16a34a';
-      statusEl.textContent = 'Saved!';
+      statusEl.textContent = '已保存！';
       await chrome.storage.local.remove('pendingSave');
       setTimeout(() => window.close(), 800);
     } catch (err) {
       statusEl.style.color = '#dc2626';
-      statusEl.textContent = 'Error: Is PromptStash desktop app running?';
+      statusEl.textContent = '错误：请确认 PromptStash 桌面端正在运行';
     }
   });
 }
