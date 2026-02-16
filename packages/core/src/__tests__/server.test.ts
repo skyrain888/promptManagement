@@ -225,4 +225,96 @@ describe('HTTP API Server', () => {
       expect(res.json().ok).toBe(true);
     });
   });
+
+  describe('Organize API', () => {
+    beforeAll(() => {
+      const originalFetch = globalThis.fetch;
+      vi.stubGlobal('fetch', async (url: string | URL | Request, init?: RequestInit) => {
+        const urlStr = typeof url === 'string' ? url : url instanceof URL ? url.toString() : url.url;
+        if (urlStr.includes('/chat/completions')) {
+          const body = JSON.parse(init?.body as string);
+          const userContent = body.messages[1].content;
+          const promptsData = JSON.parse(userContent) as Array<{ promptId: string }>;
+          const suggestions = promptsData.map(p => ({
+            promptId: p.promptId,
+            newTitle: 'Optimized Title',
+            newCategory: '编程',
+            isNewCategory: false,
+            newTags: ['optimized'],
+            similarTo: [],
+            reason: 'Test optimization',
+          }));
+          return {
+            ok: true,
+            json: async () => ({
+              choices: [{ message: { content: JSON.stringify({ suggestions }) } }],
+            }),
+          } as Response;
+        }
+        return originalFetch(url, init);
+      });
+    });
+
+    afterAll(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('POST /api/organize/scan should return suggestions', async () => {
+      const res = await server.inject({
+        method: 'POST',
+        url: '/api/organize/scan',
+      });
+      expect(res.statusCode).toBe(200);
+      const body = res.json();
+      expect(body).toHaveProperty('suggestions');
+      expect(body).toHaveProperty('totalScanned');
+      expect(body).toHaveProperty('batchesCompleted');
+      expect(Array.isArray(body.suggestions)).toBe(true);
+    });
+
+    it('POST /api/organize/apply should update prompts', async () => {
+      const searchRes = await server.inject({
+        method: 'GET',
+        url: '/api/prompts/search',
+      });
+      const allPrompts = searchRes.json();
+      if (allPrompts.length === 0) return;
+
+      const targetPrompt = allPrompts[0];
+
+      const res = await server.inject({
+        method: 'POST',
+        url: '/api/organize/apply',
+        payload: {
+          changes: [{
+            promptId: targetPrompt.id,
+            newTitle: 'Organized Title',
+            newCategoryId: categoryId,
+            newTags: ['organized', 'clean'],
+          }],
+        },
+      });
+      expect(res.statusCode).toBe(200);
+      const body = res.json();
+      expect(body.applied).toBe(1);
+      expect(body.failed).toBe(0);
+
+      const verifyRes = await server.inject({
+        method: 'GET',
+        url: `/api/prompts/${targetPrompt.id}`,
+      });
+      const updated = verifyRes.json();
+      expect(updated.title).toBe('Organized Title');
+      expect(updated.tags.sort()).toEqual(['clean', 'organized']);
+    });
+
+    it('POST /api/organize/apply should return 400 for empty changes', async () => {
+      const res = await server.inject({
+        method: 'POST',
+        url: '/api/organize/apply',
+        payload: { changes: [] },
+      });
+      expect(res.statusCode).toBe(400);
+    });
+  });
 });

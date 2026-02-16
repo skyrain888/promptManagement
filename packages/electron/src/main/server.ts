@@ -1,8 +1,8 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import type { Database } from '@promptstash/core';
-import { PromptRepo, CategoryRepo, TagRepo, SettingsRepo, Classifier, LLMService, PromptGenerator } from '@promptstash/core';
-import type { PromptSearchParams, PromptCreateInput, PromptUpdateInput, LLMConfig } from '@promptstash/core';
+import { PromptRepo, CategoryRepo, TagRepo, SettingsRepo, Classifier, LLMService, PromptGenerator, PromptOrganizer } from '@promptstash/core';
+import type { PromptSearchParams, PromptCreateInput, PromptUpdateInput, LLMConfig, OrganizeApplyInput } from '@promptstash/core';
 import { exportAll, importAll } from '@promptstash/core';
 
 export async function createServer(db: Database, port = 9877) {
@@ -271,6 +271,67 @@ export async function createServer(db: Database, port = 9877) {
   app.delete<{ Params: { sessionId: string } }>('/api/generate/:sessionId', async (request) => {
     getGenerator().deleteSession(request.params.sessionId);
     return { ok: true };
+  });
+
+  // --- Organize (AI-powered prompt optimization) ---
+  app.post('/api/organize/scan', async (_request, reply) => {
+    try {
+      const llmConfig = settings.getLLMConfig();
+      const organizer = new PromptOrganizer(llmConfig);
+      const allPrompts = prompts.search({});
+      const catList = categories.listAll();
+      const result = await organizer.scan(allPrompts, catList);
+      return result;
+    } catch (err: any) {
+      return reply.status(500).send({ error: err.message || 'Scan failed' });
+    }
+  });
+
+  app.post<{ Body: OrganizeApplyInput }>('/api/organize/apply', async (request, reply) => {
+    const { changes } = request.body;
+    if (!changes?.length) return reply.status(400).send({ error: 'No changes provided' });
+
+    let applied = 0;
+    let failed = 0;
+    const newCategoriesCreated: string[] = [];
+    const catList = categories.listAll();
+
+    for (const change of changes) {
+      try {
+        const update: Record<string, any> = {};
+        if (change.newTitle) update.title = change.newTitle;
+        if (change.newTags) update.tags = change.newTags;
+
+        if (change.isNewCategory && change.newCategoryName) {
+          const existing = catList.find(c => c.name === change.newCategoryName);
+          if (existing) {
+            update.categoryId = existing.id;
+          } else {
+            const maxSort = catList.reduce((max, c) => Math.max(max, c.sortOrder), 0);
+            const newCat = categories.create({ name: change.newCategoryName, sortOrder: maxSort + 1 });
+            catList.push(newCat);
+            update.categoryId = newCat.id;
+            newCategoriesCreated.push(change.newCategoryName);
+          }
+        } else if (change.newCategoryId) {
+          update.categoryId = change.newCategoryId;
+        } else if (change.newCategoryName) {
+          const existing = catList.find(c => c.name === change.newCategoryName);
+          if (existing) {
+            update.categoryId = existing.id;
+          }
+        }
+
+        if (Object.keys(update).length > 0) {
+          prompts.update(change.promptId, update);
+          applied++;
+        }
+      } catch {
+        failed++;
+      }
+    }
+
+    return { applied, failed, newCategoriesCreated };
   });
 
   return app;
