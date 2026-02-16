@@ -1,0 +1,222 @@
+packages/electron/scripts/dev.mjs
+  e1773363857a1a8a 1-83
+packages/core/src/models.ts
+  140dfb62224835a7 47
+  1b3a5b5f5be7c1bb 51-63
+  6468a5eebb4e2749 35-42
+scripts/dev-server.ts
+  e1773363857a1a8a 1-21
+packages/core/src/repositories/prompt-repo.ts
+  6468a5eebb4e2749 3,67-110,126-132
+  140dfb62224835a7 119-120,151-153
+packages/electron/src/renderer/index.css
+  88e70494e8a8614b 2-11
+packages/core/src/db.ts
+  1b3a5b5f5be7c1bb 55-59
+packages/electron/vite.config.ts
+  88e70494e8a8614b 3,7
+  6468a5eebb4e2749 9,13-18
+packages/core/src/__tests__/settings-repo.test.ts
+  1b3a5b5f5be7c1bb 1-79
+packages/chrome-extension/src/content.css
+  328ebc1b5724d0b1 9-13
+packages/chrome-extension/src/api-client.ts
+  34f60475683ff156 4,6,8
+package.json
+  e1773363857a1a8a 5
+packages/core/src/index.ts
+  1b3a5b5f5be7c1bb 5,7,9
+tsconfig.base.json
+  1b3a5b5f5be7c1bb 13
+packages/chrome-extension/vite.config.ts
+  34f60475683ff156 1,4-14,16-18,22,27
+scripts/run-dev-server.mjs
+  e1773363857a1a8a 1-26
+packages/core/src/repositories/settings-repo.ts
+  1b3a5b5f5be7c1bb 1-54
+packages/chrome-extension/public/manifest.json
+  34f60475683ff156 6-7
+packages/core/src/__tests__/category-repo.test.ts
+  6acaec4a9a192ca7 4,54-104
+README.md
+  e1773363857a1a8a 53-58,64,66-73,76
+packages/chrome-extension/src/content.ts
+  328ebc1b5724d0b1 3,13-52,77-118,124-126,128,130-131,133-134,139-140,143-144,156-161,166-171,189,196-203,205-252,256-258,265,267-271,273-274,279-300,303,306-343,352
+packages/chrome-extension/src/background.ts
+  34f60475683ff156 25-28,34-42
+packages/electron/package.json
+  e1773363857a1a8a 7-8
+.gitignore
+  9e5872e339398fae 1,3-4,6-8,12-13,15-46
+packages/electron/src/main/index.ts
+  6468a5eebb4e2749 1,3,28-31,34,39-42,46-52,55-86,90,92-97,99-101,107,111,115,126,129-134,176-212,215-224
+  1b3a5b5f5be7c1bb 125,127-128,135-140,142-147,149-174,232
+  328ebc1b5724d0b1 89,91,98,103
+packages/chrome-extension/package.json
+  34f60475683ff156 7
+packages/chrome-extension/popup.html
+  34f60475683ff156 11
+packages/core/src/__tests__/prompt-repo.test.ts
+  6468a5eebb4e2749 106-136
+  140dfb62224835a7 137-197
+packages/core/src/__tests__/server.test.ts
+  1b3a5b5f5be7c1bb 79-83
+  6468a5eebb4e2749 85-137
+packages/chrome-extension/manifest.json
+  34f60475683ff156 6-7
+packages/chrome-extension/src/popup.tsx
+  328ebc1b5724d0b1 26,33-34,38,45,48,56,77,82
+  34f60475683ff156 16-18,35,46
+packages/core/src/repositories/category-repo.ts
+  6acaec4a9a192ca7 11-16,42-77
+packages/electron/scripts/build.mjs
+  e1773363857a1a8a 1-41
+packages/core/src/llm-service.ts
+  1b3a5b5f5be7c1bb 1-65
+packages/electron/src/renderer/SearchWindow.tsx
+  6468a5eebb4e2749 30,33
+CLAUDE.md
+  88e70494e8a8614b 1-33,35-65
+  6468a5eebb4e2749 34
+packages/electron/src/main/shortcuts.ts
+  6468a5eebb4e2749 1-2,29-33,35-37,48,50-51,61,63-70,72
+packages/electron/src/renderer/App.tsx
+  140dfb62224835a7 1,477-478,482-484,486,491,502-507,739-750,922,931-944,946,950
+  6acaec4a9a192ca7 101-149,432-439,445-452,674-719,751-776,781-859,861-862,864-865
+  1b3a5b5f5be7c1bb 92-100,150-190,192,194-210,212,214-215,217-223,225,227-253,255-258,260-278,280-285,287-292,314,324,335,427,431,467-470,604,612-615,618-619,622,624-629,631-633,882-888,890,991,1082-1087
+  328ebc1b5724d0b1 191,193,211,213,216,224,226,254,259,279,286,298-299,301,303-304,338,344,350,354,359,363,369,376,381,387,391,406,737,874,880,889,902,911,963,974-975,992,1007,1014,1025,1044,1046-1047,1062,1064,1071,1075
+  6468a5eebb4e2749 17,23-32,55-78,305-313,315-323,325-334,336-337,339-343,345-349,351-353,355-358,360-362,364-368,370-375,377-380,382-386,388-390,392-405,407-417,428-430,453,455-466,471-474,479,489-490,492-495,518-540,544-603,605-611,616-617,620-621,623,630,634-673,869-873,875,877-878,891,896-898,908-910,912-914,927,964,981-990,993-996,998,1003-1006,1008-1013,1015-1018,1020,1028-1029,1041-1043,1045,1048-1050,1063
+  88e70494e8a8614b 33-54,79-91,293-297,300,302,418-419,426,497-501,508-517,541-543,722,724-728,730-735,777-779,860,863,866-868,895,899-900,905-907,916-917,923-926,929-930,945,947-949,951-954,956,958-962,965,969-970,972-973,999-1002,1019,1021-1023,1026-1027,1030-1040,1051-1054,1056-1061,1065,1067-1068,1070,1072-1074,1076-1077
+packages/electron/src/main/server.ts
+  6acaec4a9a192ca7 23-43
+  140dfb62224835a7 50-51,53-54,56
+  6468a5eebb4e2749 6,71-76,92-101
+  88e70494e8a8614b 2,10
+  1b3a5b5f5be7c1bb 4-5,15,102,104-163,165-167
+packages/electron/scripts/native-rebuild.mjs
+  e1773363857a1a8a 1-59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "2309d1f6f792762a7145eafdec619878dd1c5a61",
+  "prompts": {
+    "140dfb62224835a7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "79b6ccc0-b7d9-4721-a68b-ae8f9f2e18a4",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 126,
+      "total_deletions": 13,
+      "accepted_lines": 117,
+      "overriden_lines": 0
+    },
+    "1b3a5b5f5be7c1bb": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b8143718-4210-4e96-bac4-cf57301053c5",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 579,
+      "total_deletions": 97,
+      "accepted_lines": 518,
+      "overriden_lines": 1
+    },
+    "328ebc1b5724d0b1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c19342b-0737-4356-9ba8-d4ef668f0c42",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 361,
+      "total_deletions": 149,
+      "accepted_lines": 313,
+      "overriden_lines": 0
+    },
+    "34f60475683ff156": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b2f153c6-637a-474c-88b6-515cc24fabb2",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 46,
+      "total_deletions": 25,
+      "accepted_lines": 44,
+      "overriden_lines": 0
+    },
+    "6468a5eebb4e2749": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0b27c2f3-94e2-45f7-8a95-394fa8195f40",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 867,
+      "total_deletions": 168,
+      "accepted_lines": 687,
+      "overriden_lines": 0
+    },
+    "6acaec4a9a192ca7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "14b36dbc-128e-43b8-a572-38164baf7bd5",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 358,
+      "total_deletions": 28,
+      "accepted_lines": 336,
+      "overriden_lines": 0
+    },
+    "88e70494e8a8614b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b44825a0-a10c-4ed5-9c2f-3b89d5b61855",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 284,
+      "total_deletions": 50,
+      "accepted_lines": 234,
+      "overriden_lines": 1
+    },
+    "9e5872e339398fae": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "77f2f3b5-f347-4528-873e-cc2fe808281e",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 40,
+      "total_deletions": 1,
+      "accepted_lines": 40,
+      "overriden_lines": 0
+    },
+    "e1773363857a1a8a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4c2eb63e-c216-4f25-9c5b-c8d1f9cdbe2a",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 316,
+      "total_deletions": 70,
+      "accepted_lines": 251,
+      "overriden_lines": 0
+    }
+  }
+}
