@@ -88,3 +88,40 @@ export interface GenerateResult {
 export interface GenerateSaveInput {
   sessionId: string;
 }
+
+export interface OrganizeSuggestion {
+  promptId: string;
+  originalTitle: string;
+  newTitle: string | null;
+  originalCategory: string;
+  newCategory: string | null;
+  isNewCategory: boolean;
+  originalTags: string[];
+  newTags: string[] | null;
+  similarTo: string[];
+  reason: string;
+}
+
+export interface OrganizeScanResult {
+  suggestions: OrganizeSuggestion[];
+  totalScanned: number;
+  batchesCompleted: number;
+  batchesFailed: number;
+}
+
+export interface OrganizeApplyInput {
+  changes: Array<{
+    promptId: string;
+    newTitle?: string;
+    newCategoryId?: string;
+    newCategoryName?: string;
+    isNewCategory?: boolean;
+    newTags?: string[];
+  }>;
+}
+
+export interface OrganizeApplyResult {
+  applied: number;
+  failed: number;
+  newCategoriesCreated: string[];
+}

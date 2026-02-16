@@ -7,4 +7,4 @@ export { Classifier } from './classifier.js';
 export { LLMService } from './llm-service.js';
 export { PromptGenerator } from './prompt-generator.js';
 export { exportAll, importAll } from './import-export.js';
-export type { Prompt, Category, Tag, PromptCreateInput, PromptUpdateInput, PromptSearchParams, LLMConfig, LLMClassifyResult, GenerateSession, GenerateStartInput, GenerateRefineInput, GenerateResult, GenerateSaveInput } from './models.js';
+export type { Prompt, Category, Tag, PromptCreateInput, PromptUpdateInput, PromptSearchParams, LLMConfig, LLMClassifyResult, GenerateSession, GenerateStartInput, GenerateRefineInput, GenerateResult, GenerateSaveInput, OrganizeSuggestion, OrganizeScanResult, OrganizeApplyInput, OrganizeApplyResult } from './models.js';
