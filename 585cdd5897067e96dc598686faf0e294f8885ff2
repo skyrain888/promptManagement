@@ -1,0 +1,23 @@
+CLAUDE.md
+  8798477c6c238067 62-65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "585cdd5897067e96dc598686faf0e294f8885ff2",
+  "prompts": {
+    "8798477c6c238067": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "049d13e4-64da-4e76-8ca1-85a1f071d99a",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 0,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    }
+  }
+}
