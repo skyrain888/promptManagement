@@ -1,7 +1,7 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import type { Database } from '@promptstash/core';
-import { PromptRepo, CategoryRepo, TagRepo, SettingsRepo, Classifier, LLMService } from '@promptstash/core';
+import { PromptRepo, CategoryRepo, TagRepo, SettingsRepo, Classifier, LLMService, PromptGenerator } from '@promptstash/core';
 import type { PromptSearchParams, PromptCreateInput, PromptUpdateInput, LLMConfig } from '@promptstash/core';
 import { exportAll, importAll } from '@promptstash/core';
 
@@ -14,6 +14,24 @@ export async function createServer(db: Database, port = 9877) {
   const tags = new TagRepo(db);
   const settings = new SettingsRepo(db);
   const classifier = new Classifier();
+
+  let generator: PromptGenerator | null = null;
+  function getGenerator(): PromptGenerator {
+    if (!generator) {
+      const llmConfig = settings.getLLMConfig();
+      generator = new PromptGenerator(llmConfig);
+    }
+    return generator;
+  }
+
+  const cleanupInterval = setInterval(() => {
+    generator?.cleanupExpired();
+  }, 10 * 60 * 1000);
+
+  app.addHook('onClose', async () => {
+    clearInterval(cleanupInterval);
+    generator?.cleanup();
+  });
 
   // --- Categories ---
   app.get('/api/categories', async () => {
@@ -166,6 +184,93 @@ export async function createServer(db: Database, port = 9877) {
       apiKey: config.apiKey.replace(/^(.{4}).*(.{4})$/, '$1****$2'),
       model: config.model,
     };
+  });
+
+  // --- Generate (AI prompt generation) ---
+  app.post<{ Body: { requirement: string } }>('/api/generate/start', async (request, reply) => {
+    const { requirement } = request.body;
+    if (!requirement?.trim()) return reply.status(400).send({ error: 'Requirement is required' });
+    try {
+      const currentConfig = settings.getLLMConfig();
+      if (!generator || JSON.stringify(currentConfig) !== JSON.stringify((generator as any).config)) {
+        generator = new PromptGenerator(currentConfig);
+      }
+      const result = await getGenerator().startSession(requirement.trim());
+      return result;
+    } catch (err: any) {
+      return reply.status(500).send({ error: err.message || 'Generation failed' });
+    }
+  });
+
+  app.post<{ Body: { sessionId: string; feedback: string } }>('/api/generate/refine', async (request, reply) => {
+    const { sessionId, feedback } = request.body;
+    if (!sessionId || !feedback?.trim()) return reply.status(400).send({ error: 'sessionId and feedback are required' });
+    try {
+      const result = await getGenerator().refineSession(sessionId, feedback.trim());
+      return result;
+    } catch (err: any) {
+      if (err.message === 'Session not found') return reply.status(404).send({ error: 'Session not found' });
+      return reply.status(500).send({ error: err.message || 'Refinement failed' });
+    }
+  });
+
+  app.post<{ Body: { sessionId: string } }>('/api/generate/save', async (request, reply) => {
+    const { sessionId } = request.body;
+    if (!sessionId) return reply.status(400).send({ error: 'sessionId is required' });
+    const gen = getGenerator();
+    const session = gen.getSession(sessionId);
+    if (!session) return reply.status(404).send({ error: 'Session not found' });
+
+    const catList = categories.listAll();
+    const catNames = catList.map((c) => c.name);
+    let categoryId = '';
+    let tags: string[] = [];
+    let title = '';
+
+    try {
+      const llmConfig = settings.getLLMConfig();
+      const llm = new LLMService(llmConfig);
+      const classifyResult = await llm.classifyAndTitle(session.generatedPrompt, catNames);
+      if (classifyResult.isNewCategory) {
+        const maxSort = catList.reduce((max, c) => Math.max(max, c.sortOrder), 0);
+        const newCat = categories.create({ name: classifyResult.category, sortOrder: maxSort + 1 });
+        categoryId = newCat.id;
+      } else {
+        const matched = catList.find((c) => c.name === classifyResult.category);
+        categoryId = matched?.id || catList[0]?.id || '';
+      }
+      tags = classifyResult.tags;
+      title = classifyResult.title;
+    } catch {
+      const classifyResult = classifier.classify(session.generatedPrompt);
+      const matched = catList.find((c) => c.name === classifyResult.category);
+      categoryId = matched?.id || catList[0]?.id || '';
+      tags = classifyResult.tags;
+      title = classifier.suggestTitle(session.generatedPrompt);
+    }
+
+    try {
+      const lastAssistant = [...session.messages].reverse().find((m) => m.role === 'assistant');
+      if (lastAssistant) {
+        const parsed = JSON.parse(lastAssistant.content);
+        if (parsed.title) title = parsed.title;
+      }
+    } catch { /* ignore */ }
+
+    const created = prompts.create({
+      title,
+      content: session.generatedPrompt,
+      categoryId,
+      tags,
+      source: 'ai-generated',
+    });
+    gen.deleteSession(sessionId);
+    return reply.status(201).send(created);
+  });
+
+  app.delete<{ Params: { sessionId: string } }>('/api/generate/:sessionId', async (request) => {
+    getGenerator().deleteSession(request.params.sessionId);
+    return { ok: true };
   });
 
   return app;
