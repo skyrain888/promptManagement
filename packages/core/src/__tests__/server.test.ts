@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { createServer } from '@promptstash/electron/main/server.js';
 import { Database } from '../db.js';
 import { CategoryRepo } from '../repositories/category-repo.js';
@@ -135,5 +135,94 @@ describe('HTTP API Server', () => {
     });
     expect(res.statusCode).toBe(200);
     expect(res.json().ok).toBe(true);
+  });
+
+  // Add inside existing 'HTTP API Server' describe block, after the import test
+  describe('Prompt Generation API', () => {
+    let sessionId: string;
+
+    beforeAll(() => {
+      const originalFetch = globalThis.fetch;
+      vi.stubGlobal('fetch', async (url: string | URL | Request, init?: RequestInit) => {
+        const urlStr = typeof url === 'string' ? url : url instanceof URL ? url.toString() : url.url;
+        if (urlStr.includes('/chat/completions')) {
+          return {
+            ok: true,
+            json: async () => ({
+              choices: [{ message: { content: JSON.stringify({ prompt: 'Generated prompt content', title: '生成的提示词' }) } }],
+            }),
+          } as Response;
+        }
+        return originalFetch(url, init);
+      });
+    });
+
+    afterAll(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('POST /api/generate/start should create a session', async () => {
+      const res = await server.inject({
+        method: 'POST',
+        url: '/api/generate/start',
+        payload: { requirement: '帮我写一个代码审查的提示词' },
+      });
+      expect(res.statusCode).toBe(200);
+      const body = res.json();
+      expect(body.sessionId).toBeTruthy();
+      expect(body.prompt).toBeTruthy();
+      expect(body.title).toBeTruthy();
+      sessionId = body.sessionId;
+    });
+
+    it('POST /api/generate/refine should refine the prompt', async () => {
+      const res = await server.inject({
+        method: 'POST',
+        url: '/api/generate/refine',
+        payload: { sessionId, feedback: '请加上输出格式要求' },
+      });
+      expect(res.statusCode).toBe(200);
+      const body = res.json();
+      expect(body.sessionId).toBe(sessionId);
+      expect(body.prompt).toBeTruthy();
+    });
+
+    it('POST /api/generate/refine should 404 for invalid session', async () => {
+      const res = await server.inject({
+        method: 'POST',
+        url: '/api/generate/refine',
+        payload: { sessionId: 'nonexistent', feedback: 'test' },
+      });
+      expect(res.statusCode).toBe(404);
+    });
+
+    it('POST /api/generate/save should save prompt to database', async () => {
+      const res = await server.inject({
+        method: 'POST',
+        url: '/api/generate/save',
+        payload: { sessionId },
+      });
+      expect(res.statusCode).toBe(201);
+      const body = res.json();
+      expect(body.id).toBeTruthy();
+      expect(body.title).toBeTruthy();
+      expect(body.content).toBeTruthy();
+      expect(body.categoryId).toBeTruthy();
+    });
+
+    it('DELETE /api/generate/:sessionId should delete session', async () => {
+      const startRes = await server.inject({
+        method: 'POST',
+        url: '/api/generate/start',
+        payload: { requirement: 'test' },
+      });
+      const newSessionId = startRes.json().sessionId;
+      const res = await server.inject({
+        method: 'DELETE',
+        url: `/api/generate/${newSessionId}`,
+      });
+      expect(res.statusCode).toBe(200);
+      expect(res.json().ok).toBe(true);
+    });
   });
 });
