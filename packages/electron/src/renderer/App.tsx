@@ -678,6 +678,16 @@ function OrganizePanel({ onComplete, onClose }: {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'title' | 'category' | 'tags' | 'duplicates'>('title');
   const [applyResult, setApplyResult] = useState<{ applied: number; failed: number } | null>(null);
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
+
+  const handleDeleteDuplicate = async (promptId: string) => {
+    try {
+      await fetch(`${API}/api/prompts/${promptId}`, { method: 'DELETE' });
+      setDeletedIds(prev => new Set([...prev, promptId]));
+    } catch {
+      setError('删除失败');
+    }
+  };
 
   const handleScan = async () => {
     setPhase('scanning');
@@ -755,7 +765,7 @@ function OrganizePanel({ onComplete, onClose }: {
   const titleSuggestions = scanResult?.suggestions.filter(s => s.newTitle) || [];
   const categorySuggestions = scanResult?.suggestions.filter(s => s.newCategory) || [];
   const tagsSuggestions = scanResult?.suggestions.filter(s => s.newTags) || [];
-  const duplicates = scanResult?.suggestions.filter(s => s.similarTo.length > 0) || [];
+  const duplicates = (scanResult?.suggestions.filter(s => s.similarTo.length > 0) || []).filter(s => !deletedIds.has(s.promptId));
 
   const tabCounts = {
     title: titleSuggestions.length,
@@ -773,7 +783,7 @@ function OrganizePanel({ onComplete, onClose }: {
     <div className="flex flex-col h-full">
       <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-900">智能整理</h2>
-        <button onClick={onClose} className="text-xs px-2.5 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+        <button onClick={() => { if (deletedIds.size > 0) onComplete(); onClose(); }} className="text-xs px-2.5 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
           关闭
         </button>
       </div>
@@ -881,12 +891,21 @@ function OrganizePanel({ onComplete, onClose }: {
                       </>
                     )}
                     {activeTab === 'duplicates' && (
-                      <>
-                        <p className="text-xs text-gray-700 font-medium truncate">{s.originalTitle}</p>
-                        <p className="text-[10px] text-amber-600 mt-0.5">
-                          与 {s.similarTo.length} 条提示词内容相似
-                        </p>
-                      </>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-gray-700 font-medium truncate">{s.originalTitle}</p>
+                          <p className="text-[10px] text-amber-600 mt-0.5">
+                            与 {s.similarTo.length} 条提示词内容相似
+                          </p>
+                        </div>
+                        <button
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeleteDuplicate(s.promptId); }}
+                          className="shrink-0 text-[11px] px-2 py-1 rounded text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                          title="删除此提示词"
+                        >
+                          删除
+                        </button>
+                      </div>
                     )}
                     <p className="text-[10px] text-gray-400 mt-0.5">{s.reason}</p>
                   </div>
@@ -910,6 +929,7 @@ function OrganizePanel({ onComplete, onClose }: {
               <p className="text-sm text-gray-700 font-medium">整理完成</p>
               <p className="text-xs text-gray-500 mt-1">
                 成功更新 {applyResult.applied} 条提示词
+                {deletedIds.size > 0 && `，删除 ${deletedIds.size} 条重复`}
                 {applyResult.failed > 0 && `，${applyResult.failed} 条失败`}
               </p>
             </div>
