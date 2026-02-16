@@ -136,3 +136,55 @@ pnpm uninstall:alfred
 | 分析 | 📊 |
 | 创意 | 💡 |
 | 其他 | 📁 |
+
+## 打包分发
+
+使用 [electron-builder](https://www.electron.build/) 将 Electron 应用打包为可分发的安装包。
+
+### 前置步骤
+
+1. 安装 electron-builder：
+
+```bash
+pnpm add -D electron-builder --filter @promptstash/electron
+```
+
+2. 在 `packages/electron/package.json` 中添加 `build` 配置：
+
+```jsonc
+{
+  "build": {
+    "appId": "com.promptstash.app",
+    "productName": "PromptStash",
+    "directories": { "output": "release" },
+    "files": ["dist/**/*"],
+    "mac": { "target": ["dmg", "zip"], "category": "public.app-category.developer-tools" },
+    "win": { "target": ["nsis", "zip"] },
+    "linux": { "target": ["AppImage", "deb"], "category": "Development" }
+  }
+}
+```
+
+### 一键打包
+
+```bash
+# 当前平台（自动构建 + 打包）
+pnpm dist:electron
+
+# 指定平台
+pnpm dist:electron -- --mac
+pnpm dist:electron -- --win
+pnpm dist:electron -- --linux
+
+# 仅打包为目录（本地测试，不生成安装包）
+pnpm dist:electron -- --dir
+```
+
+打包产物输出到 `packages/electron/release/`。脚本位于 `scripts/dist-electron.mjs`。
+
+### 注意事项
+
+- **better-sqlite3** 是原生模块，electron-builder 会自动用 `@electron/rebuild` 重新编译
+- **macOS 签名/公证** 需要 Apple Developer 证书，设置 `CSC_LINK` 和 `CSC_KEY_PASSWORD` 环境变量；跳过签名：`CSC_IDENTITY_AUTO_DISCOVERY=false pnpm dist:electron`
+- **Windows** 可在 macOS 上交叉编译（需要 wine），或直接在 Windows 上打包
+- **自定义图标** 将 `icon.icns`（mac）/ `icon.ico`（win）/ `icon.png`（linux）放入 `packages/electron/build/` 目录

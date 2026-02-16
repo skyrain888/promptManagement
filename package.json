@@ -9,6 +9,7 @@
     "build:alfred": "node scripts/build-alfred.mjs",
     "install:alfred": "node scripts/install-alfred.mjs",
     "uninstall:alfred": "node scripts/install-alfred.mjs --uninstall",
+    "dist:electron": "node scripts/dist-electron.mjs",
     "test": "pnpm -r test",
     "test:core": "pnpm --filter @promptstash/core test"
   },
