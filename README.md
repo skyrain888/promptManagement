@@ -139,33 +139,9 @@ pnpm uninstall:alfred
 
 ## 打包分发
 
-使用 [electron-builder](https://www.electron.build/) 将 Electron 应用打包为可分发的安装包。
+所有打包脚本位于 `scripts/` 目录，一键构建 + 打包。
 
-### 前置步骤
-
-1. 安装 electron-builder：
-
-```bash
-pnpm add -D electron-builder --filter @promptstash/electron
-```
-
-2. 在 `packages/electron/package.json` 中添加 `build` 配置：
-
-```jsonc
-{
-  "build": {
-    "appId": "com.promptstash.app",
-    "productName": "PromptStash",
-    "directories": { "output": "release" },
-    "files": ["dist/**/*"],
-    "mac": { "target": ["dmg", "zip"], "category": "public.app-category.developer-tools" },
-    "win": { "target": ["nsis", "zip"] },
-    "linux": { "target": ["AppImage", "deb"], "category": "Development" }
-  }
-}
-```
-
-### 一键打包
+### Electron 桌面应用
 
 ```bash
 # 当前平台（自动构建 + 打包）
@@ -180,7 +156,29 @@ pnpm dist:electron -- --linux
 pnpm dist:electron -- --dir
 ```
 
-打包产物输出到 `packages/electron/release/`。脚本位于 `scripts/dist-electron.mjs`。
+产物：`packages/electron/release/`（dmg / nsis / AppImage）
+
+> 前置：需安装 `electron-builder`（`pnpm add -D electron-builder --filter @promptstash/electron`），并在 `packages/electron/package.json` 中配置 `build` 字段。
+
+### Chrome 扩展
+
+```bash
+pnpm dist:extension
+```
+
+产物：`packages/chrome-extension/release/promptstash-extension-<version>.zip`
+
+上传到 [Chrome Web Store](https://chrome.google.com/webstore/devconsole) 或本地加载解压目录。
+
+### Alfred Workflow
+
+```bash
+pnpm dist:alfred
+```
+
+产物：`packages/alfred-workflow/release/PromptStash-<version>.alfredworkflow`
+
+双击 `.alfredworkflow` 文件即可安装到 Alfred。
 
 ### 注意事项
 
