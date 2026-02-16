@@ -425,9 +425,8 @@ function PromptFormPanel({
   );
 }
 
-function GeneratePanel({ categories, onSaved, onClose }: {
-  categories: Category[];
-  onSaved: (prompt: Prompt) => void;
+function GeneratePanel({ onSaveToForm, onClose }: {
+  onSaveToForm: (data: { title: string; content: string; categoryId: string; tags: string[] }) => void;
   onClose: () => void;
 }) {
   const [requirement, setRequirement] = useState('');
@@ -502,17 +501,24 @@ function GeneratePanel({ categories, onSaved, onClose }: {
     setSaving(true);
     setError(null);
     try {
-      const r = await fetch(`${API}/api/generate/save`, {
+      // Classify the generated prompt to get categoryId and tags
+      const classifyRes = await fetch(`${API}/api/prompts/classify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId }),
+        body: JSON.stringify({ content: generatedPrompt }),
       });
-      if (!r.ok) {
-        const err = await r.json();
-        throw new Error(err.error || 'Save failed');
-      }
-      const saved = await r.json();
-      onSaved(saved);
+      const classifyData = await classifyRes.json();
+
+      // Clean up the generation session
+      await fetch(`${API}/api/generate/${sessionId}`, { method: 'DELETE' });
+
+      // Send to create form with generated title + classified category/tags
+      onSaveToForm({
+        title: generatedTitle,
+        content: generatedPrompt,
+        categoryId: classifyData.categoryId || '',
+        tags: classifyData.tags || [],
+      });
     } catch (err: any) {
       setError(err.message || '保存失败');
     }
@@ -1313,11 +1319,17 @@ export function App() {
       {mode === 'generate' && (
         <aside className="w-[340px] bg-white border-l border-gray-200/60 flex flex-col">
           <GeneratePanel
-            categories={categories}
-            onSaved={(saved) => {
-              setMode('view');
-              setSelectedPrompt(saved);
-              refreshPrompts();
+            onSaveToForm={({ title, content, categoryId, tags }) => {
+              setForm({
+                title,
+                content,
+                categoryId,
+                tags: tags.join(', '),
+                source: '',
+              });
+              setMode('create');
+              setSelectedPrompt(null);
+              setSuggestedCategory(null);
               fetch(`${API}/api/categories`).then((r) => r.json()).then(setCategories);
             }}
             onClose={() => setMode('view')}
