@@ -59,6 +59,10 @@ pnpm --filter @promptstash/core test -- prompt-repo.test.ts  # Single test file
 | POST | `/api/prompts/:id/favorite` | Toggle favorite |
 | DELETE | `/api/prompts/:id` | Delete prompt |
 | POST | `/api/prompts/classify` | Auto-classify content |
+| POST | `/api/generate/start` | Start prompt generation session |
+| POST | `/api/generate/refine` | Refine with feedback |
+| POST | `/api/generate/save` | Save generated prompt |
+| DELETE | `/api/generate/:sessionId` | Discard session |
 
 ## Testing
 
