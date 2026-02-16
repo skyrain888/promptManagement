@@ -98,6 +98,14 @@ function GearIcon() {
   );
 }
 
+function SparkleIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" />
+    </svg>
+  );
+}
+
 const PRESET_ICONS = [
   '💻', '✍️', '🌐', '📊', '💡', '📁',
   '🎨', '🔧', '📚', '🎯', '🧪', '🤖',
@@ -417,6 +425,215 @@ function PromptFormPanel({
   );
 }
 
+function GeneratePanel({ categories, onSaved, onClose }: {
+  categories: Category[];
+  onSaved: (prompt: Prompt) => void;
+  onClose: () => void;
+}) {
+  const [requirement, setRequirement] = useState('');
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [generatedPrompt, setGeneratedPrompt] = useState('');
+  const [generatedTitle, setGeneratedTitle] = useState('');
+  const [feedback, setFeedback] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [history, setHistory] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
+
+  const handleGenerate = async () => {
+    if (!requirement.trim()) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const r = await fetch(`${API}/api/generate/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ requirement: requirement.trim() }),
+      });
+      if (!r.ok) {
+        const err = await r.json();
+        throw new Error(err.error || 'Generation failed');
+      }
+      const data = await r.json();
+      setSessionId(data.sessionId);
+      setGeneratedPrompt(data.prompt);
+      setGeneratedTitle(data.title);
+      setHistory([
+        { role: 'user', content: requirement.trim() },
+        { role: 'assistant', content: data.prompt },
+      ]);
+    } catch (err: any) {
+      setError(err.message || '生成失败');
+    }
+    setLoading(false);
+  };
+
+  const handleRefine = async () => {
+    if (!feedback.trim() || !sessionId) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const r = await fetch(`${API}/api/generate/refine`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, feedback: feedback.trim() }),
+      });
+      if (!r.ok) {
+        const err = await r.json();
+        throw new Error(err.error || 'Refinement failed');
+      }
+      const data = await r.json();
+      setGeneratedPrompt(data.prompt);
+      setGeneratedTitle(data.title);
+      setHistory((prev) => [
+        ...prev,
+        { role: 'user', content: feedback.trim() },
+        { role: 'assistant', content: data.prompt },
+      ]);
+      setFeedback('');
+    } catch (err: any) {
+      setError(err.message || '优化失败');
+    }
+    setLoading(false);
+  };
+
+  const handleSave = async () => {
+    if (!sessionId) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const r = await fetch(`${API}/api/generate/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+      });
+      if (!r.ok) {
+        const err = await r.json();
+        throw new Error(err.error || 'Save failed');
+      }
+      const saved = await r.json();
+      onSaved(saved);
+    } catch (err: any) {
+      setError(err.message || '保存失败');
+    }
+    setSaving(false);
+  };
+
+  const handleRestart = () => {
+    if (sessionId) {
+      fetch(`${API}/api/generate/${sessionId}`, { method: 'DELETE' });
+    }
+    setSessionId(null);
+    setGeneratedPrompt('');
+    setGeneratedTitle('');
+    setFeedback('');
+    setRequirement('');
+    setHistory([]);
+    setError(null);
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-gray-900">AI 生成提示词</h2>
+        <button onClick={onClose} className="text-xs px-2.5 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+          关闭
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-3">
+        {!sessionId ? (
+          <>
+            <div className="flex-1 flex flex-col">
+              <label className="block text-xs font-medium text-gray-500 mb-1">描述你的需求</label>
+              <textarea
+                value={requirement}
+                onChange={(e) => setRequirement(e.target.value)}
+                className="flex-1 min-h-[200px] px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 resize-none"
+                placeholder="例如：帮我写一个代码审查助手的提示词，要求关注代码质量、安全性和性能..."
+                onKeyDown={(e) => { if (e.key === 'Enter' && e.metaKey) handleGenerate(); }}
+              />
+            </div>
+            <p className="text-[11px] text-gray-400">Cmd+Enter 快速生成</p>
+          </>
+        ) : (
+          <>
+            <div className="flex flex-col gap-3">
+              {history.map((msg, i) => (
+                <div key={i} className={`text-sm ${msg.role === 'user' ? 'text-right' : ''}`}>
+                  {msg.role === 'user' ? (
+                    <div className="inline-block bg-indigo-50 text-indigo-700 px-3 py-2 rounded-lg max-w-[90%] text-left">
+                      {msg.content}
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 rounded-xl p-3">
+                      <pre className="text-xs font-mono text-gray-700 whitespace-pre-wrap leading-relaxed">{msg.content}</pre>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="mt-2">
+              <label className="block text-xs font-medium text-gray-500 mb-1">优化建议</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleRefine(); }}
+                  className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400"
+                  placeholder="例如：更简洁、加上输出格式、增加示例..."
+                  disabled={loading}
+                />
+                <button
+                  onClick={handleRefine}
+                  disabled={!feedback.trim() || loading}
+                  className="shrink-0 px-3 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  {loading ? '优化中...' : '优化'}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {error && (
+          <div className="text-xs px-3 py-2 rounded-lg bg-red-50 text-red-700">{error}</div>
+        )}
+      </div>
+
+      <div className="px-5 py-4 border-t border-gray-100 flex gap-2">
+        {!sessionId ? (
+          <button
+            onClick={handleGenerate}
+            disabled={!requirement.trim() || loading}
+            className="flex-1 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            {loading ? '生成中...' : '生成提示词'}
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={handleRestart}
+              disabled={loading || saving}
+              className="flex-1 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-40 transition-colors"
+            >
+              重新开始
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={loading || saving}
+              className="flex-1 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              {saving ? '保存中...' : '保存'}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function App() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -424,7 +641,7 @@ export function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const [copied, setCopied] = useState(false);
-  const [mode, setMode] = useState<'view' | 'create' | 'edit' | 'settings'>('view');
+  const [mode, setMode] = useState<'view' | 'create' | 'edit' | 'settings' | 'generate'>('view');
   const [form, setForm] = useState<PromptForm>(emptyForm);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [suggestedCategory, setSuggestedCategory] = useState<string | null>(null);
@@ -906,6 +1123,13 @@ export function App() {
             />
           </div>
           <button
+            onClick={() => { setMode('generate'); setSelectedPrompt(null); }}
+            className="shrink-0 p-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 transition-colors"
+            title="AI 生成提示词"
+          >
+            <SparkleIcon />
+          </button>
+          <button
             onClick={startCreate}
             className="shrink-0 p-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors"
             title="新建提示词"
@@ -1083,6 +1307,21 @@ export function App() {
       {mode === 'settings' && (
         <aside className="w-[340px] bg-white border-l border-gray-200/60 flex flex-col">
           <SettingsPanel onClose={() => setMode('view')} />
+        </aside>
+      )}
+
+      {mode === 'generate' && (
+        <aside className="w-[340px] bg-white border-l border-gray-200/60 flex flex-col">
+          <GeneratePanel
+            categories={categories}
+            onSaved={(saved) => {
+              setMode('view');
+              setSelectedPrompt(saved);
+              refreshPrompts();
+              fetch(`${API}/api/categories`).then((r) => r.json()).then(setCategories);
+            }}
+            onClose={() => setMode('view')}
+          />
         </aside>
       )}
     </div>
