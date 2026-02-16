@@ -1,0 +1,25 @@
+packages/core/src/__tests__/server.test.ts
+  fe9a1fd84d7bd178 228-319
+packages/electron/src/main/server.ts
+  fe9a1fd84d7bd178 4-5,276-336
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "519f34fc1f82fb9bc8f6d638d43e3c0d6de82e5b",
+  "prompts": {
+    "fe9a1fd84d7bd178": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "df77b0ca-aae1-4618-9486-17796fc98cfa",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "sky <53413907>",
+      "messages": [],
+      "total_additions": 156,
+      "total_deletions": 3,
+      "accepted_lines": 155,
+      "overriden_lines": 0
+    }
+  }
+}
